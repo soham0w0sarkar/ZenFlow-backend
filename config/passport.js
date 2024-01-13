@@ -10,14 +10,16 @@ export default (passport) => {
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: process.env.GOOGLE_CALLBACK_URL,
       },
-      async function (_, __, profile, done) {
+      async function (accesstoken, __, profile, done) {
         const user = await User.findOne({ email: profile._json.email });
         if (user) {
           return done(null, user);
         }
+
         const newUser = await User.create({
           name: profile._json.name,
           email: profile._json.email,
+          accessToken: accesstoken,
         });
         return done(null, newUser);
       }

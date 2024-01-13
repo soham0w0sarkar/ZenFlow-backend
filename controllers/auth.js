@@ -3,7 +3,7 @@ import ErrorHandler from "../utils/errorHandler.js";
 
 export const googleAuth = (req, res, next) => {
   passport.authenticate("google", {
-    scope: ["profile", "email"],
+    scope: ["profile", "email", "access_token"],
   })(req, res, next);
 };
 
