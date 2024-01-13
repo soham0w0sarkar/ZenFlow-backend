@@ -5,7 +5,7 @@ import { isAuthenciated } from "../utils/isAuthenciated.js";
 
 const backgroundRouter = express.Router();
 
-backgroundRouter.get("/getBackground", getBackground);
+backgroundRouter.get("/getBackground",isAuthenciated, getBackground);
 backgroundRouter.post(
   "/setBackground",
   isAuthenciated,
