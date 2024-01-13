@@ -3,6 +3,10 @@ import passport from "passport";
 
 const authRouter = express.Router();
 
+authRouter.get("/status", (req, res) => {
+  res.send(req.isAuthenticated());
+});
+
 authRouter.get(
   "/google",
   passport.authenticate("google", {
@@ -14,17 +18,15 @@ authRouter.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
-    console.log(req.isAuthenticated());
-    res.redirect("/");
+    res.redirect("http://localhost:5173/");
   }
 );
 
 authRouter.get("/logout", (req, res) => {
-  console.log(req.isAuthenticated());
   req.session.destroy((err) => {
     if (err) console.log(err);
   });
-  res.redirect("/");
+  res.redirect("http://localhost:5173/");
 });
 
 export default authRouter;
