@@ -1,9 +1,7 @@
 import express from "express";
-import { isAdmin } from "../utils/isAuthenciated.js";
+
 import {
-  getAllAvailableWidgets,
   getWeather,
-  toggelWidget,
 } from "../controllers/widgets.js";
 
 const widgetRouter = express.Router();

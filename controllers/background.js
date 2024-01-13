@@ -27,7 +27,7 @@ export const setBackground = catchAsyncError(async (req, res, next) => {
   });
 
   const background = await Background.create({
-    name: fileUri.filename,
+    name: fileUri.fileName,
     public_id: uploadCloud.public_id,
     url: uploadCloud.secure_url,
   });
