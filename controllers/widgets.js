@@ -1,6 +1,4 @@
-import Widget from "../models/widgets.js";
 import { catchAsyncError } from "../middlewares/catchAsyncError.js";
-
 
 export const getWeather = catchAsyncError(async (req, res, next) => {
   const { lat, lon } = req.params;
@@ -13,5 +11,17 @@ export const getWeather = catchAsyncError(async (req, res, next) => {
     data: {
       weather,
     },
+  });
+});
+
+export const getJokes = catchAsyncError(async (req, res) => {
+  const response = await fetch(
+    "https://v2.jokeapi.dev/joke/Programming?type=single"
+  );
+  const data = await response.json();
+
+  res.status(200).json({
+    status: "success",
+    joke: data.joke,
   });
 });

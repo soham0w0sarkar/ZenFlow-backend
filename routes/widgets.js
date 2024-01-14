@@ -1,11 +1,10 @@
 import express from "express";
 
-import {
-  getWeather,
-} from "../controllers/widgets.js";
+import { getJokes, getWeather } from "../controllers/widgets.js";
 
 const widgetRouter = express.Router();
 
-widgetRouter.get("/weather:lat:lon", getWeather);
+widgetRouter.get("/weather/:lat/:lon", getWeather);
+widgetRouter.get("/jokes", getJokes);
 
 export default widgetRouter;
