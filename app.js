@@ -47,10 +47,12 @@ app.get("/", (req, res) => {
 
 import authRouter from "./routes/auth.js";
 import backgroundRouter from "./routes/background.js";
+import widgetRouter from "./routes/widgets.js";
 
 app.use("/auth", authRouter);
 app.use("/api/v1/background", backgroundRouter);
-
-export default app;
+app.use("/api/v1/widgets", widgetRouter);
 
 app.use(errorMiddleware);
+
+export default app;
