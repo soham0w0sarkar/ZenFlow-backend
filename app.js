@@ -1,6 +1,5 @@
 import express from "express";
 import session from "express-session";
-import passport from "passport";
 import errorMiddleware from "./middlewares/error.js";
 import cors from "cors";
 
@@ -27,19 +26,14 @@ app.use(
 
 app.use(express.json());
 
-import intializePassport from "./config/passport.js";
-intializePassport(passport);
-
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: { secure: false },
   })
 );
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.get("/", (req, res) => {
   res.send("Hello Everynian!!");
@@ -49,7 +43,7 @@ import authRouter from "./routes/auth.js";
 import backgroundRouter from "./routes/background.js";
 import widgetRouter from "./routes/widgets.js";
 
-app.use("/auth", authRouter);
+app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/background", backgroundRouter);
 app.use("/api/v1/widgets", widgetRouter);
 

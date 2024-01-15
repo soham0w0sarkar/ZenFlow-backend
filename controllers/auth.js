@@ -1,35 +1,40 @@
-import passport from "passport";
-import ErrorHandler from "../utils/errorHandler.js";
+import oauth2Client from "../config/oauth.js";
+import User from "../models/user.js";
 
-export const googleAuth = (req, res, next) => {
-  passport.authenticate("google", {
-    scope: ["profile", "email", "access_token"],
-  })(req, res, next);
+export const googleLogin = (req, res) => {
+  const url = oauth2Client.generateAuthUrl({
+    access_type: "offline",
+    scope: [
+      "https://www.googleapis.com/auth/userinfo.profile",
+      "https://www.googleapis.com/auth/userinfo.email",
+    ],
+  });
+  res.redirect(url);
 };
 
-export const googleAuthCallback = (req, res, next) => {
-  passport.authenticate("google", { failureRedirect: "/" }),
-    (req, res, next) => {
-      req.login(req.user, (err) => {
-        if (err) next(new ErrorHandler(err.message, 500));
-      });
-    };
-  res.redirect("/auth/loginSuccess");
-};
+export const googleCallback = async (req, res) => {
+  const { code } = req.query;
+  const { tokens } = await oauth2Client.getToken(code);
+  oauth2Client.setCredentials(tokens);
+  const oauth2 = google.oauth2({
+    auth: oauth2Client,
+    version: "v2",
+  });
+  const { data } = await oauth2.userinfo.get();
 
-export const loginSuccess = (req, res, next) => {
-  res.status(200).json({
-    success: true,
-    message: "Logged in successfully",
-  });
-};
+  const user = await User.findOne({ email: data.email });
 
-export const logout = (req, res, next) => {
-  req.logout(req.user, (err) => {
-    if (err) next(new ErrorHandler(err.message, 500));
+  if (user) {
+    user.access_token = tokens.access_token;
+    await user.save();
+    return res.redirect("http://localhost:5173");
+  }
+
+  await User.create({
+    name: data.name,
+    email: data.email,
+    access_token: tokens.access_token,
   });
-  res.status(200).json({
-    success: true,
-    message: "Logged out successfully",
-  });
+
+  res.redirect("http://localhost:5173");
 };

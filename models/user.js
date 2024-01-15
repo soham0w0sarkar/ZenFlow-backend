@@ -10,6 +10,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  access_token: {
+    type: String,
+    required: true,
+  },
 });
 
 export default mongoose.model("User", userSchema);
