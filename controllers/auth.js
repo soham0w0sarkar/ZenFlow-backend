@@ -1,4 +1,5 @@
-import oauth2Client from "../config/oauth.js";
+import { oauth2Client } from "../config/oauth.js";
+import { google } from "googleapis";
 import User from "../models/user.js";
 
 export const googleLogin = (req, res) => {
@@ -27,7 +28,7 @@ export const googleCallback = async (req, res) => {
   if (user) {
     user.access_token = tokens.access_token;
     await user.save();
-    return res.redirect("http://localhost:5173");
+    return res.redirect(process.env.FRONTEND_URI);
   }
 
   await User.create({
@@ -36,5 +37,5 @@ export const googleCallback = async (req, res) => {
     access_token: tokens.access_token,
   });
 
-  res.redirect("http://localhost:5173");
+  res.redirect(process.env.FRONTEND_URI);
 };

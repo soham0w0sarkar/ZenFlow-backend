@@ -2,15 +2,18 @@ import express from "express";
 import session from "express-session";
 import errorMiddleware from "./middlewares/error.js";
 import cors from "cors";
+import { initializeOAuthClient } from "./config/oauth.js";
 
 import { config } from "dotenv";
 config({ path: "./config/config.env" });
+
+initializeOAuthClient();
 
 const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URI,
     credentials: true,
     optionsSuccessStatus: 200,
     exposedHeaders: ["Set-Cookie"],
