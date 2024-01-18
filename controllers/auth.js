@@ -2,6 +2,13 @@ import { oauth2Client } from "../config/oauth.js";
 import { google } from "googleapis";
 import User from "../models/user.js";
 
+export const status = (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "User is logged in",
+  });
+};
+
 export const googleLogin = (req, res) => {
   const url = oauth2Client.generateAuthUrl({
     access_type: "offline",
@@ -23,19 +30,22 @@ export const googleCallback = async (req, res) => {
   });
   const { data } = await oauth2.userinfo.get();
 
-  const user = await User.findOne({ email: data.email });
+  let user = await User.findOne({ email: data.email });
 
   if (user) {
     user.access_token = tokens.access_token;
     await user.save();
+    req.session.user = user;
     return res.redirect(process.env.FRONTEND_URI);
   }
 
-  await User.create({
+  user = await User.create({
     name: data.name,
     email: data.email,
     access_token: tokens.access_token,
   });
+
+  req.session.user = user;
 
   res.redirect(process.env.FRONTEND_URI);
 };
