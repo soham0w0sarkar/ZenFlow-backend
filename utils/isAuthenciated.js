@@ -1,6 +1,5 @@
 export const isAuthenciated = (req, res, next) => {
-  console.log(req.isAuthenticated());
-  if (req.isAuthenticated()) {
+  if (req.session.user) {
     next();
   } else {
     res.status(401).json({
