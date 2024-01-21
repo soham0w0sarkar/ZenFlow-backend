@@ -6,12 +6,11 @@ import ErrorHandler from "../utils/errorHandler.js";
 
 export const getBackground = catchAsyncError(async (req, res, next) => {
   const backgrounds = await Background.find({});
-  if (!backgrounds)
-    return next(new ErrorHandler("No such setting found!!", 404));
+  if (!backgrounds) return next(new ErrorHandler("NoBackdorund uploaded", 404));
 
   res.status(200).json({
     success: true,
-    backgrounds,
+    background: backgrounds[0],
   });
 });
 
@@ -23,17 +22,19 @@ export const setBackground = catchAsyncError(async (req, res, next) => {
 
   const uploadCloud = await cloudinary.v2.uploader.upload(fileUri.content, {
     folder: "background",
-    use_filename: true,
   });
 
+  console.log(uploadCloud);
+
   const background = await Background.create({
-    name: fileUri.fileName,
+    name: file.name,
     public_id: uploadCloud.public_id,
     url: uploadCloud.secure_url,
   });
 
   res.status(200).json({
     success: true,
+    url: background.url,
     message: "Background image updated successfully!!",
   });
 });
