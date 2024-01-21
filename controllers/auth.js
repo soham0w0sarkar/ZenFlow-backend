@@ -35,7 +35,7 @@ export const googleCallback = async (req, res) => {
   if (user) {
     user.access_token = tokens.access_token;
     await user.save();
-    req.session.user = user;
+    req.user = user;
     return res.redirect(process.env.FRONTEND_URI);
   }
 
@@ -45,7 +45,7 @@ export const googleCallback = async (req, res) => {
     access_token: tokens.access_token,
   });
 
-  req.session.user = user;
+  req.user = user;
 
   res.redirect(process.env.FRONTEND_URI);
 };
