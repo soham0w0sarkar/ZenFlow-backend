@@ -1,13 +1,17 @@
 import mongoose from "mongoose";
 
 const backgroundSchema = new mongoose.Schema({
-    public_id: {
+  public_id: {
     type: String,
     default: "",
   },
   url: {
     type: String,
     default: "",
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   },
 });
 

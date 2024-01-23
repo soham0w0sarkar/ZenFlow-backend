@@ -15,7 +15,7 @@ export const googleLogin = (req, res) => {
     scope: [
       "https://www.googleapis.com/auth/userinfo.profile",
       "https://www.googleapis.com/auth/userinfo.email",
-      'https://www.googleapis.com/auth/calendar'
+      "https://www.googleapis.com/auth/calendar",
     ],
   });
   res.redirect(url);
@@ -36,7 +36,10 @@ export const googleCallback = async (req, res) => {
   if (user) {
     user.access_token = tokens.access_token;
     await user.save();
-    req.user = user;
+
+    req.session.user = user;
+    req.session.save();
+
     return res.redirect(process.env.FRONTEND_URI);
   }
 
@@ -46,7 +49,23 @@ export const googleCallback = async (req, res) => {
     access_token: tokens.access_token,
   });
 
-  req.user = user;
+  req.session.user = user;
+  req.session.save();
 
   res.redirect(process.env.FRONTEND_URI);
+};
+
+export const logout = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ message: "Could not log out, please try again." });
+    } else {
+      res.clearCookie("connect.sid");
+      return res
+        .status(200)
+        .json({ success: true, message: "Logged out successfully." });
+    }
+  });
 };
