@@ -1,20 +1,22 @@
 import { catchAsyncError } from "../middlewares/catchAsyncError.js";
+import { oauth2Client } from "../config/oauth.js";
+import { google } from "googleapis";
 
 const cityFormat = (value) => {
-  value = value.split(' ');
+  value = value.split(" ");
   value = value.map((word, indx) => {
     if (indx !== value.length - 1) {
       return word[0].toUpperCase();
     }
     return word[0].toUpperCase() + word.slice(1);
   });
-  
-  if(value.length === 1) {
+
+  if (value.length === 1) {
     return value;
-  } else if(value.length === 2) {
-    return value.join(' ');
+  } else if (value.length === 2) {
+    return value.join(" ");
   } else {
-    return value.join('').slice(0, 2) + ' ' + value.join('').slice(2);
+    return value.join("").slice(0, 2) + " " + value.join("").slice(2);
   }
 };
 
@@ -29,7 +31,7 @@ export const getWeather = catchAsyncError(async (req, res, next) => {
     icon: weather.weather[0].icon,
     temp: Math.round(weather.main.temp - 273),
     city: cityFormat(weather.name),
-  }
+  };
 
   res.status(200).json({
     status: "success",
@@ -46,5 +48,24 @@ export const getJokes = catchAsyncError(async (req, res) => {
   res.status(200).json({
     status: "success",
     joke: data.joke,
+  });
+});
+
+export const getAllEvents = catchAsyncError(async (req, res) => {
+  const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
+  const response = await calendar.events.list({
+    calendarId: "primary",
+    timeMin: new Date().toISOString(),
+    maxResults: 10,
+    singleEvents: true,
+    orderBy: "startTime",
+  });
+
+  const events = response.data.items;
+
+  res.status(200).json({
+    status: "success",
+    events,
   });
 });
