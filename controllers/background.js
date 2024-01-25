@@ -5,7 +5,7 @@ import Background from "../models/background.js";
 import ErrorHandler from "../utils/errorHandler.js";
 
 export const getBackground = catchAsyncError(async (req, res, next) => {
-  let backgrounds = await Background.find({});
+  let backgrounds = await Background.find({ user: req.session.user._id });
   if (!backgrounds)
     return next(new ErrorHandler("No Background uploaded", 404));
 
@@ -29,12 +29,13 @@ export const setBackground = catchAsyncError(async (req, res, next) => {
   const fileUri = getDataUri(file);
 
   const uploadCloud = await cloudinary.v2.uploader.upload(fileUri.content, {
-    folder: "background",
+    folder: `background/${req.session.user.name}`,
   });
 
   const background = await Background.create({
     public_id: uploadCloud.public_id,
     url: uploadCloud.secure_url,
+    user: req.session.user._id,
   });
 
   res.status(200).json({
