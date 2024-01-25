@@ -47,12 +47,13 @@ app.use(
 );
 
 app.use((req, res, next) => {
+  console.log("\n");
   console.log("/******* Request ******/");
   console.log("sessionId : ", req.sessionID);
   console.log("method : ", req.method);
   console.log("url : ", req.url);
   console.log("/*************/");
-  console.log("\n")
+  console.log("\n");
   next();
 });
 
