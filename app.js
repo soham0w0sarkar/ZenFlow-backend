@@ -46,6 +46,16 @@ app.use(
   })
 );
 
+app.use((req, res, next) => {
+  console.log("/******* Request ******/");
+  console.log("sessionId : ", req.sessionID);
+  console.log("method : ", req.method);
+  console.log("url : ", req.url);
+  console.log("/*************/");
+  console.log("\n")
+  next();
+});
+
 app.get("/", (req, res) => {
   res.send("Hello Everynian!!");
 });
