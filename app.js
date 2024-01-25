@@ -1,5 +1,6 @@
 import express from "express";
 import session from "express-session";
+import MongoStore from "connect-mongo";
 import errorMiddleware from "./middlewares/error.js";
 import cors from "cors";
 import { initializeOAuthClient } from "./config/oauth.js";
@@ -38,6 +39,10 @@ app.use(
       maxAge: 3 * 24 * 60 * 60 * 1000,
       secure: false,
     },
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+      collectionName: "sessions",
+    }),
   })
 );
 
