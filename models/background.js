@@ -13,6 +13,10 @@ const backgroundSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  createdAt: {
+    type: Date,
+    default: Date.now(),
+  },
 });
 
 export default mongoose.model("Background", backgroundSchema);
