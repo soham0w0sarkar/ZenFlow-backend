@@ -24,7 +24,9 @@ export const googleLogin = (req, res) => {
 export const googleCallback = async (req, res) => {
   const { code } = req.query;
   const { tokens } = await oauth2Client.getToken(code);
+  
   oauth2Client.setCredentials(tokens);
+
   const oauth2 = google.oauth2({
     auth: oauth2Client,
     version: "v2",
@@ -47,6 +49,7 @@ export const googleCallback = async (req, res) => {
     name: data.name,
     email: data.email,
     access_token: tokens.access_token,
+    refresh_token: tokens.refresh_token,
   });
 
   req.session.user = user;
