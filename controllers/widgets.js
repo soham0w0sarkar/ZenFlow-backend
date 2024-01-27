@@ -138,3 +138,38 @@ export const getAllEvents = catchAsyncError(async (req, res) => {
     events,
   });
 });
+
+export const createEvent = catchAsyncError(async (req, res) => {
+  const { summary, description, location, startDate, startTime, endDate, endTime } =
+    req.body;
+
+  oauth2Client.setCredentials({
+    access_token: req.session.user.access_token,
+    refresh_token: req.session.user.refresh_token,
+  });
+  const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
+  const event = {
+    summary,
+    description,
+    location,
+    start: {
+      dateTime: `${startDate}T${startTime}:00`,
+      timeZone: "America/Los_Angeles",
+    },
+    end: {
+      dateTime: `${endDate}T${endTime}:00`,
+      timeZone: "America/Los_Angeles",
+    },
+  };
+
+  const response = await calendar.events.insert({
+    calendarId: "primary",
+    resource: event,
+  });
+
+  res.status(200).json({
+    status: "success",
+    event: response.data,
+  });
+});
