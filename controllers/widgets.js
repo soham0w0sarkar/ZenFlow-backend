@@ -52,17 +52,23 @@ export const getJokes = catchAsyncError(async (req, res) => {
 });
 
 export const getAllEvents = catchAsyncError(async (req, res) => {
+  oauth2Client.setCredentials({
+    access_token: req.session.user.access_token,
+    refresh_token: req.session.user.refresh_token,
+  });
   const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
   const response = await calendar.events.list({
     calendarId: "primary",
     timeMin: new Date().toISOString(),
-    maxResults: 10,
+    maxResults: 1,
     singleEvents: true,
     orderBy: "startTime",
   });
 
   const events = response.data.items;
+
+  console.log(events);
 
   res.status(200).json({
     status: "success",
