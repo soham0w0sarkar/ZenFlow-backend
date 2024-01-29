@@ -1,25 +1,12 @@
-import express from "express";
-import {
-  deleteBackground,
-  getBackground,
-  setBackground,
-} from "../controllers/background.js";
-import singleStorage from "../middlewares/multer.js";
-import { isAuthenciated } from "../utils/isAuthenciated.js";
+import express from 'express';
+import { deleteBackground, getBackground, setBackground } from '../controllers/background.js';
+import singleStorage from '../middlewares/multer.js';
+import { isAuthenciated } from '../utils/isAuthenciated.js';
 
 const backgroundRouter = express.Router();
 
-backgroundRouter.get("/getBackground", isAuthenciated, getBackground);
-backgroundRouter.post(
-  "/setBackground",
-  isAuthenciated,
-  singleStorage,
-  setBackground
-);
-backgroundRouter.delete(
-  "/deleteBackground/:id",
-  isAuthenciated,
-  deleteBackground
-);
+backgroundRouter.get('/getBackground', isAuthenciated, getBackground);
+backgroundRouter.post('/setBackground', isAuthenciated, singleStorage, setBackground);
+backgroundRouter.delete('/deleteBackground/:id', isAuthenciated, deleteBackground);
 
 export default backgroundRouter;
