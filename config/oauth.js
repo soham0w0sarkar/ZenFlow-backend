@@ -12,7 +12,7 @@ export const initializeOAuthClient = () => {
 
 export const refreshAccessToken = async (refreshToken) => {
 	oauth2Client.setCredentials({
-		refresh_token: req.session.user.refresh_token
+		refresh_token: refreshToken
 	});
 
 	oauth2Client.refreshAccessToken(function (err, tokens) {
