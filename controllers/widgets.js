@@ -142,24 +142,42 @@ export const createEvent = catchAsyncError(async (req, res) => {
 	});
 	const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
+	let start;
+	let end;
+
+	if(startTime && endTime) {
+		start = {
+			dateTime: new Date(`${startDate} ${startTime}`),
+			timeZone: 'Asia/Kolkata'
+		};
+		end = {
+			dateTime: new Date(`${endDate} ${endTime}`),
+			timeZone: 'Asia/Kolkata'
+		};
+	}
+
+	if(!startTime && !endTime) {
+		start = {
+			date: new Date(startDate),
+		};
+		end = {
+			date: new Date(endDate),
+		};
+	}
+
 	const event = {
 		summary,
 		description,
 		location,
-		start: {
-			dateTime: `${startDate}T${startTime}:00`,
-			timeZone: 'America/Los_Angeles'
-		},
-		end: {
-			dateTime: `${endDate}T${endTime}:00`,
-			timeZone: 'America/Los_Angeles'
-		}
+		start,
+		end
 	};
 
 	const response = await calendar.events.insert({
 		calendarId: 'primary',
 		resource: event
 	});
+
 
 	res.status(200).json({
 		status: 'success',

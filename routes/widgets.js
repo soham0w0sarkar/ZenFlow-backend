@@ -7,6 +7,6 @@ const widgetRouter = express.Router();
 
 widgetRouter.get('/weather/:lat/:lon', getWeather);
 widgetRouter.get('/jokes', getJokes);
-widgetRouter.route('/calendar').get('/getAllEvents', isAuthenciated, getAllEvents).post('/createEvent', isAuthenciated, createEvent);
+widgetRouter.route('/calendar', isAuthenciated).get(getAllEvents).post(createEvent);
 
 export default widgetRouter;
