@@ -22,7 +22,9 @@ const cityFormat = (value) => {
 
 export const getWeather = catchAsyncError(async (req, res, next) => {
 	const { lat, lon } = req.params;
-	const weatherData = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${process.env.WEATHER_API_KEY}`);
+	const weatherData = await fetch(
+		`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${process.env.WEATHER_API_KEY}`
+	);
 	const weather = await weatherData.json();
 
 	const data = {
@@ -48,7 +50,6 @@ export const getJokes = catchAsyncError(async (req, res) => {
 });
 
 export const getAllEvents = catchAsyncError(async (req, res) => {
-
 	const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
 	const response = await calendar.events.list({
@@ -134,7 +135,7 @@ export const getAllEvents = catchAsyncError(async (req, res) => {
 
 export const createEvent = catchAsyncError(async (req, res) => {
 	const { summary, description, location, startDate, startTime, endDate, endTime, currentColorId } = req.body;
-	
+
 	const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
 	let start;

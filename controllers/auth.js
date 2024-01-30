@@ -12,7 +12,11 @@ export const status = (req, res) => {
 export const googleLogin = (req, res) => {
 	const url = oauth2Client.generateAuthUrl({
 		access_type: 'offline',
-		scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/calendar']
+		scope: [
+			'https://www.googleapis.com/auth/userinfo.profile',
+			'https://www.googleapis.com/auth/userinfo.email',
+			'https://www.googleapis.com/auth/calendar'
+		]
 	});
 	res.redirect(url);
 };
