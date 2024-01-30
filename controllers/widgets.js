@@ -145,7 +145,7 @@ export const createEvent = catchAsyncError(async (req, res) => {
 	let start;
 	let end;
 
-	if(startTime && endTime) {
+	if (startTime && endTime) {
 		start = {
 			dateTime: new Date(`${startDate} ${startTime}`),
 			timeZone: 'Asia/Kolkata'
@@ -156,16 +156,16 @@ export const createEvent = catchAsyncError(async (req, res) => {
 		};
 	}
 
-	if(!startTime && !endTime) {
+	if (!startTime && !endTime) {
 		start = {
-			date: new Date(startDate),
+			date: new Date(startDate).toISOString().split('T')[0]
 		};
 		end = {
-			date: new Date(endDate),
+			date: new Date(endDate).toISOString().split('T')[0]
 		};
 	}
 
-	const event = {
+	let event = {
 		summary,
 		description,
 		location,
@@ -178,9 +178,65 @@ export const createEvent = catchAsyncError(async (req, res) => {
 		resource: event
 	});
 
+	if (response.data.start.dateTime) {
+		const startDateTimeString = response.data.start.dateTime;
+		const endDateTimeString = response.data.end.dateTime;
+		const startDateTimeObj = new Date(startDateTimeString);
+		const endDateTimeObj = new Date(endDateTimeString);
+
+		const startDate = startDateTimeObj.toLocaleDateString('en-US', {
+			day: 'numeric',
+			month: 'short',
+			year: 'numeric'
+		});
+		const startTime = startDateTimeObj.toLocaleTimeString('en-US', {
+			hour: 'numeric',
+			minute: 'numeric'
+		});
+		const endTime = endDateTimeObj.toLocaleTimeString('en-US', {
+			hour: 'numeric',
+			minute: 'numeric'
+		});
+		const endDate = endDateTimeObj.toLocaleDateString('en-US', {
+			day: 'numeric',
+			month: 'short',
+			year: 'numeric'
+		});
+
+		event = {
+			summary: response.data.summary,
+			description,
+			location,
+			startDate,
+			startTime,
+			endDate,
+			endTime
+		};
+	} else {
+		const startDate = new Date(response.data.start.date).toLocaleDateString('en-US', {
+			day: 'numeric',
+			month: 'short',
+			year: 'numeric'
+		});
+		const endDate = new Date(response.data.end.date).toLocaleDateString('en-US', {
+			day: 'numeric',
+			month: 'short',
+			year: 'numeric'
+		});
+
+		event = {
+			summary: response.data.summary,
+			description,
+			location,
+			startDate,
+			startTime: 'All Day',
+			endDate,
+			endTime: 'All Day'
+		};
+	}
 
 	res.status(200).json({
 		status: 'success',
-		event: response.data
+		event
 	});
 });
