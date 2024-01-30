@@ -95,6 +95,7 @@ export const getAllEvents = catchAsyncError(async (req, res) => {
 			});
 
 			return {
+				colorId: item.colorId || '7',
 				summary: item.summary,
 				description,
 				location,
@@ -116,6 +117,7 @@ export const getAllEvents = catchAsyncError(async (req, res) => {
 			});
 
 			return {
+				colorId: item.colorId || '7',
 				summary: item.summary,
 				description,
 				location,
