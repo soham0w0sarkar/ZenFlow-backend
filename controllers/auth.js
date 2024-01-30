@@ -27,6 +27,7 @@ export const googleCallback = async (req, res) => {
 		auth: oauth2Client,
 		version: 'v2'
 	});
+
 	const { data } = await oauth2.userinfo.get();
 
 	let user = await User.findOne({ email: data.email });
@@ -49,6 +50,9 @@ export const googleCallback = async (req, res) => {
 	});
 
 	req.session.user = user;
+	req.session.save();
+
+	req.session.access_token_expiration = new Date().getTime() + 3600000;
 	req.session.save();
 
 	res.redirect(process.env.FRONTEND_URI);
