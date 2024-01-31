@@ -3,9 +3,7 @@ import { catchAsyncError } from './catchAsyncError.js';
 
 const setOauthCredentials = catchAsyncError((req, res, next) => {
 	if (req.session.access_token_expiration <= new Date().getTime()) {
-		console.log('req.session.access_token_expiration', req.session.access_token_expiration);
 		refreshAccessToken(req.session.user.refresh_token);
-		console.log('here');
 	}
 
 	oauth2Client.setCredentials({

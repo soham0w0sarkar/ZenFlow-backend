@@ -17,7 +17,8 @@ export const googleLogin = (req, res) => {
 			'https://www.googleapis.com/auth/userinfo.profile',
 			'https://www.googleapis.com/auth/userinfo.email',
 			'https://www.googleapis.com/auth/calendar'
-		]
+		],
+		include_granted_scopes: true
 	});
 	res.redirect(url);
 };
