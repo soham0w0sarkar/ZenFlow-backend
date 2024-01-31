@@ -25,6 +25,11 @@ app.use(
 
 app.use(express.json());
 
+export const sessionStore = MongoStore.create({
+	mongoUrl: process.env.MONGO_URI,
+	collectionName: 'sessions'
+});
+
 app.use(
 	session({
 		secret: process.env.SESSION_SECRET,
@@ -34,10 +39,7 @@ app.use(
 			maxAge: 3 * 24 * 60 * 60 * 1000,
 			secure: false
 		},
-		store: MongoStore.create({
-			mongoUrl: process.env.MONGO_URI,
-			collectionName: 'sessions'
-		})
+		store: sessionStore
 	})
 );
 

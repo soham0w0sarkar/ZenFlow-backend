@@ -1,6 +1,7 @@
 import { oauth2Client } from '../config/oauth.js';
 import { google } from 'googleapis';
 import User from '../models/user.js';
+import { sessionStore } from '../app.js';
 
 export const status = (req, res) => {
 	res.status(200).json({
@@ -62,12 +63,19 @@ export const googleCallback = async (req, res) => {
 };
 
 export const logout = (req, res) => {
+	const sessionId = req.session.id;
 	req.session.destroy((err) => {
 		if (err) {
 			return res.status(500).json({ message: 'Could not log out, please try again.' });
 		} else {
-			res.clearCookie('connect.sid');
-			return res.status(200).json({ success: true, message: 'Logged out successfully.' });
+			sessionStore.destroy(sessionId, (err) => {
+				if (err) {
+					return res.status(500).json({ message: 'Could not delete session from database.' });
+				} else {
+					res.clearCookie('connect.sid');
+					return res.status(200).json({ success: true, message: 'Logged out successfully.' });
+				}
+			});
 		}
 	});
 };
