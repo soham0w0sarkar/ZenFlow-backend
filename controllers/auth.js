@@ -41,6 +41,7 @@ export const googleCallback = async (req, res) => {
 		await user.save();
 
 		req.session.user = user;
+		req.session.access_token_expiration = new Date().getTime() + 3000000;
 		req.session.save();
 
 		return res.redirect(process.env.FRONTEND_URI);
@@ -54,9 +55,7 @@ export const googleCallback = async (req, res) => {
 	});
 
 	req.session.user = user;
-	req.session.save();
-
-	req.session.access_token_expiration = new Date().getTime() + 3600000;
+	req.session.access_token_expiration = new Date().getTime() + 3000000;
 	req.session.save();
 
 	res.redirect(process.env.FRONTEND_URI);
