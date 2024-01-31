@@ -34,7 +34,7 @@ export const getWeather = catchAsyncError(async (req, res, next) => {
 	};
 
 	res.status(200).json({
-		status: 'success',
+		success: true,
 		data
 	});
 });
@@ -44,7 +44,7 @@ export const getJokes = catchAsyncError(async (req, res) => {
 	const data = await response.json();
 
 	res.status(200).json({
-		status: 'success',
+		success: true,
 		joke: data.joke
 	});
 });
@@ -128,7 +128,7 @@ export const getAllEvents = catchAsyncError(async (req, res) => {
 	});
 
 	res.status(200).json({
-		status: 'success',
+		success: true,
 		events
 	});
 });
@@ -233,7 +233,23 @@ export const createEvent = catchAsyncError(async (req, res) => {
 	}
 
 	res.status(200).json({
-		status: 'success',
+		success: true,
 		event
+	});
+});
+
+export const getAllMails = catchAsyncError(async (req, res) => {
+	const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+	const response = await gmail.users.messages.list({
+		userId: 'me',
+		maxResults: 10,
+		q: 'is:unread'
+	});
+
+	console.log(response.data);
+
+	res.status(200).json({
+		success: true
 	});
 });
