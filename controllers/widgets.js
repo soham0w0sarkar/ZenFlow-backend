@@ -272,7 +272,7 @@ const retrieveMessages = catchAsyncError(async (gmail, messages, res) => {
 
 		return {
 			subject,
-			short: subject.split(' ').slice(0, 3).join(' ') + '...',
+			short: `${subject.split(' ').slice(0, 3).join(' ')} ...`,
 			senderName,
 			link: `https://mail.google.com/mail/u/0/#inbox/${message.id}`
 		};
