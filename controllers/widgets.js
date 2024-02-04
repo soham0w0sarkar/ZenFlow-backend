@@ -127,6 +127,8 @@ export const getAllEvents = catchAsyncError(async (req, res) => {
 		}
 	});
 
+	console.log(events);
+
 	res.status(200).json({
 		success: true,
 		events
@@ -241,15 +243,45 @@ export const createEvent = catchAsyncError(async (req, res) => {
 export const getAllMails = catchAsyncError(async (req, res) => {
 	const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
+	const today = new Date().toISOString().split('T')[0];
+
 	const response = await gmail.users.messages.list({
 		userId: 'me',
 		maxResults: 10,
-		q: 'is:unread'
+		q: `is:unread after:${today}`
 	});
 
-	console.log(response.data);
+	const messages = response.data.messages;
+
+	retrieveMessages(gmail, messages, res);
+});
+
+const retrieveMessages = catchAsyncError(async (gmail, messages, res) => {
+	const mails = messages.map(async (message) => {
+		const response = await gmail.users.messages.get({
+			userId: 'me',
+			id: message.id
+		});
+
+		const headers = response.data.payload.headers;
+		const subject = headers.find((header) => header.name === 'Subject').value;
+		const senderName = headers
+			.find((header) => header.name === 'From')
+			.value.split('<')[0]
+			.trim();
+
+		return {
+			subject,
+			short: subject.split(' ').slice(0, 3).join(' ') + '...',
+			senderName,
+			link: `https://mail.google.com/mail/u/0/#inbox/${message.id}`
+		};
+	});
+
+	const allMails = await Promise.all(mails);
 
 	res.status(200).json({
-		success: true
+		success: true,
+		mails: allMails
 	});
 });
