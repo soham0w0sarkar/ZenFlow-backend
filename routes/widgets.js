@@ -12,6 +12,6 @@ widgetRouter
 	.route('/calendar')
 	.get(isAuthenciated, setOauthCredentials, getAllEvents)
 	.post(isAuthenciated, setOauthCredentials, createEvent);
-widgetRouter.get('/allMails', isAuthenciated, setOauthCredentials, getAllMails)
+widgetRouter.get('/allMails', isAuthenciated, setOauthCredentials, getAllMails);
 
 export default widgetRouter;
