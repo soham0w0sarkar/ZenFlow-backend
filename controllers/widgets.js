@@ -20,6 +20,36 @@ const cityFormat = (value) => {
 	}
 };
 
+const retrieveMessages = catchAsyncError(async (gmail, messages, res) => {
+	const mails = messages.map(async (message) => {
+		const response = await gmail.users.messages.get({
+			userId: 'me',
+			id: message.id
+		});
+
+		const headers = response.data.payload.headers;
+		const subject = headers.find((header) => header.name === 'Subject').value;
+		const senderName = headers
+			.find((header) => header.name === 'From')
+			.value.split('<')[0]
+			.trim();
+
+		return {
+			subject,
+			short: `${subject.split(' ').slice(0, 3).join(' ')} ...`,
+			senderName,
+			link: `https://mail.google.com/mail/u/0/#inbox/${message.id}`
+		};
+	});
+
+	const allMails = await Promise.all(mails);
+
+	res.status(200).json({
+		success: true,
+		mails: allMails
+	});
+});
+
 export const getWeather = catchAsyncError(async (req, res, next) => {
 	const { lat, lon } = req.params;
 	const weatherData = await fetch(
@@ -126,8 +156,6 @@ export const getAllEvents = catchAsyncError(async (req, res) => {
 			};
 		}
 	});
-
-	console.log(events);
 
 	res.status(200).json({
 		success: true,
@@ -251,37 +279,17 @@ export const getAllMails = catchAsyncError(async (req, res) => {
 		q: `is:unread after:${today}`
 	});
 
+	if (!response.data.messages) {
+		console.log('No messages found.');
+
+		 res.status(200).json({
+			success: true,
+			mails: []
+		});
+
+		return;
+	}
 	const messages = response.data.messages;
 
 	retrieveMessages(gmail, messages, res);
-});
-
-const retrieveMessages = catchAsyncError(async (gmail, messages, res) => {
-	const mails = messages.map(async (message) => {
-		const response = await gmail.users.messages.get({
-			userId: 'me',
-			id: message.id
-		});
-
-		const headers = response.data.payload.headers;
-		const subject = headers.find((header) => header.name === 'Subject').value;
-		const senderName = headers
-			.find((header) => header.name === 'From')
-			.value.split('<')[0]
-			.trim();
-
-		return {
-			subject,
-			short: `${subject.split(' ').slice(0, 3).join(' ')} ...`,
-			senderName,
-			link: `https://mail.google.com/mail/u/0/#inbox/${message.id}`
-		};
-	});
-
-	const allMails = await Promise.all(mails);
-
-	res.status(200).json({
-		success: true,
-		mails: allMails
-	});
 });
