@@ -86,14 +86,33 @@ export const getAllEvents = catchAsyncError(async (req, res) => {
 		calendarId: 'primary',
 		timeMin: new Date().toISOString(),
 		timeMax: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
-		maxResults: 10,
 		singleEvents: true,
 		orderBy: 'startTime'
 	});
 
-	const events = response.data.items.map((item) => {
+	if (!response.data.items) {
+		res.status(200).json({
+			success: true,
+			events: []
+		});
+
+		return;
+	}
+
+	const events = response.data.items.map(async (item) => {
 		let location = item.location || 'No location';
 		location = location.split(',')[0];
+
+		let repeat = 'No repeat';
+
+		if (item.recurringEventId) {
+			const recurrence = await calendar.events.get({
+				calendarId: 'primary',
+				eventId: item.recurringEventId
+			});
+			repeat = recurrence.data.recurrence[0].split(';')[0].split('=')[1];
+			repeat = repeat[0].toUpperCase() + repeat.slice(1).toLocaleLowerCase();
+		}
 
 		let description = item.description || 'No description';
 
@@ -127,6 +146,7 @@ export const getAllEvents = catchAsyncError(async (req, res) => {
 				summary: item.summary,
 				description,
 				location,
+				repeat,
 				startDate,
 				startTime,
 				endDate,
@@ -148,6 +168,7 @@ export const getAllEvents = catchAsyncError(async (req, res) => {
 				colorId: item.colorId || '7',
 				summary: item.summary,
 				description,
+				repeat,
 				location,
 				startDate,
 				startTime: 'All Day',
@@ -157,9 +178,11 @@ export const getAllEvents = catchAsyncError(async (req, res) => {
 		}
 	});
 
+	const allEvents = await Promise.all(events);
+
 	res.status(200).json({
 		success: true,
-		events
+		events: allEvents
 	});
 });
 
@@ -282,7 +305,7 @@ export const getAllMails = catchAsyncError(async (req, res) => {
 	if (!response.data.messages) {
 		console.log('No messages found.');
 
-		 res.status(200).json({
+		res.status(200).json({
 			success: true,
 			mails: []
 		});
