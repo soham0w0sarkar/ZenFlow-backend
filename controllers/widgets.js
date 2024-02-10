@@ -110,6 +110,7 @@ export const getAllEvents = catchAsyncError(async (req, res) => {
 				calendarId: 'primary',
 				eventId: item.recurringEventId
 			});
+			console.log(recurrence.data.recurrence);
 			repeat = recurrence.data.recurrence[0].split(';')[0].split('=')[1];
 			repeat = repeat[0].toUpperCase() + repeat.slice(1).toLocaleLowerCase();
 		}
@@ -187,7 +188,7 @@ export const getAllEvents = catchAsyncError(async (req, res) => {
 });
 
 export const createEvent = catchAsyncError(async (req, res) => {
-	const { summary, description, location, startDate, startTime, endDate, endTime, currentColorId } = req.body;
+	const { summary, description, location, startDate, startTime, endDate, endTime, currentColorId, repeat} = req.body;
 
 	const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
