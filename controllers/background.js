@@ -59,3 +59,28 @@ export const deleteBackground = catchAsyncError(async (req, res, next) => {
 		message: 'Background image deleted successfully!!'
 	});
 });
+
+export const getCurrentBackground = catchAsyncError(async (req, res, next) => {
+	const background = await Background.findOne({ user: req.session.user._id, current: true });
+
+	if (!background) return next(new ErrorHandler('No Background found!!', 404));
+
+	res.status(200).json({
+		success: true,
+		background
+	});
+});
+
+export const setCurrentBackground = catchAsyncError(async (req, res, next) => {
+	const background = await Background.findById(req.params.id);
+
+	if (!background) return next(new ErrorHandler('No Background found!!', 404));
+
+	await Background.updateMany({ _id: { $ne: req.params.id } }, { current: false });
+	await background.updateOne({ current: true });
+
+	res.status(200).json({
+		success: true,
+		message: 'Background image updated successfully!!'
+	});
+});
