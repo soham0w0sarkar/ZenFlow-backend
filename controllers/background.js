@@ -60,17 +60,6 @@ export const deleteBackground = catchAsyncError(async (req, res, next) => {
 	});
 });
 
-export const getCurrentBackground = catchAsyncError(async (req, res, next) => {
-	const background = await Background.findOne({ user: req.session.user._id, current: true });
-
-	if (!background) return next(new ErrorHandler('No Background found!!', 404));
-
-	res.status(200).json({
-		success: true,
-		background
-	});
-});
-
 export const setCurrentBackground = catchAsyncError(async (req, res, next) => {
 	const background = await Background.findById(req.params.id);
 

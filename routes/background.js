@@ -14,9 +14,6 @@ const backgroundRouter = express.Router();
 backgroundRouter.get('/getBackground', isAuthenciated, getBackground);
 backgroundRouter.post('/setBackground', isAuthenciated, singleStorage, setBackground);
 backgroundRouter.delete('/deleteBackground/:id', isAuthenciated, deleteBackground);
-backgroundRouter
-	.route('/currentBackground/:id')
-	.get(isAuthenciated, getCurrentBackground)
-	.post(isAuthenciated, setCurrentBackground);
+backgroundRouter.post('/currentBackground/:id', isAuthenciated, setCurrentBackground);
 
 export default backgroundRouter;
