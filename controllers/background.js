@@ -5,8 +5,13 @@ import Background from '../models/background.js';
 import ErrorHandler from '../utils/errorHandler.js';
 
 export const getBackground = catchAsyncError(async (req, res, next) => {
-	let backgrounds = await Background.find({ user: req.session.user._id }).sort({ createdAt: -1 });
+	let backgrounds = await Background.find({ user: req.session.user._id });
+
+	console.log(backgrounds);
+
 	if (!backgrounds) return next(new ErrorHandler('No Background uploaded', 404));
+
+	let currentBackground = backgrounds.find((background) => background.current);
 
 	backgrounds = backgrounds.map((background) => {
 		return {
@@ -17,6 +22,7 @@ export const getBackground = catchAsyncError(async (req, res, next) => {
 
 	res.status(200).json({
 		success: true,
+		currentBackground: currentBackground.url,
 		backgrounds
 	});
 });
@@ -31,9 +37,12 @@ export const setBackground = catchAsyncError(async (req, res, next) => {
 		folder: `background/${req.session.user.name}`
 	});
 
+	await Background.updateMany({ user: req.session.user._id }, { current: false });
+
 	const background = await Background.create({
 		public_id: uploadCloud.public_id,
 		url: uploadCloud.secure_url,
+		current: true,
 		user: req.session.user._id
 	});
 
@@ -65,7 +74,7 @@ export const setCurrentBackground = catchAsyncError(async (req, res, next) => {
 
 	if (!background) return next(new ErrorHandler('No Background found!!', 404));
 
-	await Background.updateMany({ _id: { $ne: req.params.id } }, { current: false });
+	await Background.updateMany({ user: req.session.user._id }, { current: false });
 	await background.updateOne({ current: true });
 
 	res.status(200).json({

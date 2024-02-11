@@ -2,7 +2,6 @@ import express from 'express';
 import {
 	deleteBackground,
 	getBackground,
-	getCurrentBackground,
 	setBackground,
 	setCurrentBackground
 } from '../controllers/background.js';
