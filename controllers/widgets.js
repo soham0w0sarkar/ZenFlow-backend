@@ -188,7 +188,10 @@ export const getAllEvents = catchAsyncError(async (req, res) => {
 });
 
 export const createEvent = catchAsyncError(async (req, res) => {
-	const { summary, description, location, startDate, startTime, endDate, endTime, currentColorId, repeat} = req.body;
+	const { summary, description, location, startDate, startTime, endDate, endTime, currentColorId, reccurence } =
+		req.body;
+
+	console.log(reccurence);
 
 	const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
@@ -221,7 +224,10 @@ export const createEvent = catchAsyncError(async (req, res) => {
 		description,
 		location,
 		start,
-		end
+		end,
+		reccurence : [
+			reccurence
+		]
 	};
 
 	const response = await calendar.events.insert({
@@ -229,66 +235,9 @@ export const createEvent = catchAsyncError(async (req, res) => {
 		resource: event
 	});
 
-	if (response.data.start.dateTime) {
-		const startDateTimeString = response.data.start.dateTime;
-		const endDateTimeString = response.data.end.dateTime;
-		const startDateTimeObj = new Date(startDateTimeString);
-		const endDateTimeObj = new Date(endDateTimeString);
-
-		const startDate = startDateTimeObj.toLocaleDateString('en-US', {
-			day: 'numeric',
-			month: 'short',
-			year: 'numeric'
-		});
-		const startTime = startDateTimeObj.toLocaleTimeString('en-US', {
-			hour: 'numeric',
-			minute: 'numeric'
-		});
-		const endTime = endDateTimeObj.toLocaleTimeString('en-US', {
-			hour: 'numeric',
-			minute: 'numeric'
-		});
-		const endDate = endDateTimeObj.toLocaleDateString('en-US', {
-			day: 'numeric',
-			month: 'short',
-			year: 'numeric'
-		});
-
-		event = {
-			summary: response.data.summary,
-			description,
-			location,
-			startDate,
-			startTime,
-			endDate,
-			endTime
-		};
-	} else {
-		const startDate = new Date(response.data.start.date).toLocaleDateString('en-US', {
-			day: 'numeric',
-			month: 'short',
-			year: 'numeric'
-		});
-		const endDate = new Date(response.data.end.date).toLocaleDateString('en-US', {
-			day: 'numeric',
-			month: 'short',
-			year: 'numeric'
-		});
-
-		event = {
-			summary: response.data.summary,
-			description,
-			location,
-			startDate,
-			startTime: 'All Day',
-			endDate,
-			endTime: 'All Day'
-		};
-	}
-
 	res.status(200).json({
 		success: true,
-		event
+		message: 'Event created successfully'
 	});
 });
 
