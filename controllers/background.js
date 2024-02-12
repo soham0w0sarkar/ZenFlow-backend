@@ -7,8 +7,6 @@ import ErrorHandler from '../utils/errorHandler.js';
 export const getBackground = catchAsyncError(async (req, res, next) => {
 	let backgrounds = await Background.find({ user: req.session.user._id });
 
-	console.log(backgrounds);
-
 	if (!backgrounds) return next(new ErrorHandler('No Background uploaded', 404));
 
 	let currentBackground = backgrounds.find((background) => background.current);
