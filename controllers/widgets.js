@@ -59,9 +59,20 @@ export const getWeather = catchAsyncError(async (req, res, next) => {
 
 	const data = {
 		icon: weather.weather[0].icon,
+		main: weather.weather[0].main,
+		description: weather.weather[0].description,
 		temp: Math.round(weather.main.temp - 273),
+		feels_like: Math.round(weather.main.feels_like - 273),
+		wind_speed: (weather.wind.speed * 3.6).toFixed(2),
+		wind_deg: weather.wind.deg,
+		sunrise: new Date(weather.sys.sunrise * 1000).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+		sunset: new Date(weather.sys.sunset * 1000).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+		humidity: weather.main.humidity,
+		city_full: weather.name,
 		city: cityFormat(weather.name)
 	};
+
+	console.log(data);
 
 	res.status(200).json({
 		success: true,
@@ -110,7 +121,6 @@ export const getAllEvents = catchAsyncError(async (req, res) => {
 				calendarId: 'primary',
 				eventId: item.recurringEventId
 			});
-			console.log(recurrence.data.recurrence);
 			repeat = recurrence.data.recurrence[0].split(';')[0].split('=')[1];
 			repeat = repeat[0].toUpperCase() + repeat.slice(1).toLocaleLowerCase();
 		}
@@ -225,9 +235,7 @@ export const createEvent = catchAsyncError(async (req, res) => {
 		location,
 		start,
 		end,
-		reccurence : [
-			reccurence
-		]
+		reccurence: [reccurence]
 	};
 
 	const response = await calendar.events.insert({
