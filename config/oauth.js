@@ -10,7 +10,7 @@ export const initializeOAuthClient = () => {
 	);
 };
 
-export const refreshAccessToken = async (refreshToken) => {
+export const refreshAccessToken = async (refreshToken, req) => {
 	oauth2Client.setCredentials({
 		refresh_token: refreshToken
 	});
@@ -21,6 +21,8 @@ export const refreshAccessToken = async (refreshToken) => {
 			return;
 		}
 
-		return tokens;
+		req.session.user.access_token = tokens.access_token;
+		req.session.access_token_expiration = new Date().getTime() + 3000000;
+		req.session.save();
 	});
 };
