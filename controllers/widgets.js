@@ -72,8 +72,6 @@ export const getWeather = catchAsyncError(async (req, res, next) => {
 		city: cityFormat(weather.name)
 	};
 
-	console.log(data);
-
 	res.status(200).json({
 		success: true,
 		data
