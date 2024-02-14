@@ -286,7 +286,7 @@ export const markAsRead = catchAsyncError(async (req, res, next) => {
 		userId: 'me',
 		id,
 		resource: {
-			removeLabelIds: [ 'UNREAD' ]
+			removeLabelIds: ['UNREAD']
 		}
 	});
 
