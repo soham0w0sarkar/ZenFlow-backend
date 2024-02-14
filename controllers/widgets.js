@@ -52,6 +52,7 @@ const retrieveMessages = catchAsyncError(async (gmail, messages, res) => {
 
 export const getWeather = catchAsyncError(async (req, res, next) => {
 	const { lat, lon } = req.params;
+
 	const weatherData = await fetch(
 		`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${process.env.WEATHER_API_KEY}`
 	);

@@ -1,10 +1,5 @@
 import express from 'express';
-import {
-	deleteBackground,
-	getBackground,
-	setBackground,
-	setCurrentBackground
-} from '../controllers/background.js';
+import { deleteBackground, getBackground, setBackground, setCurrentBackground } from '../controllers/background.js';
 import singleStorage from '../middlewares/multer.js';
 import { isAuthenciated } from '../utils/isAuthenciated.js';
 
