@@ -261,7 +261,6 @@ export const getAllMails = catchAsyncError(async (req, res, next) => {
 
 	const response = await gmail.users.messages.list({
 		userId: 'me',
-		maxResults: 10,
 		q: `is:unread after:${today}`
 	});
 
