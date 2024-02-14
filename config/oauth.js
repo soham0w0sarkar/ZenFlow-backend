@@ -1,4 +1,5 @@
 import { google } from 'googleapis';
+import ErrorHandler from '../utils/errorHandler.js';
 
 export let oauth2Client;
 
@@ -17,8 +18,7 @@ export const refreshAccessToken = async (refreshToken, req) => {
 
 	oauth2Client.refreshAccessToken(function (err, tokens) {
 		if (err) {
-			console.error('Error refreshing access token', err);
-			return;
+			throw new ErrorHandler(err.message, 500);
 		}
 
 		req.session.user.access_token = tokens.access_token;

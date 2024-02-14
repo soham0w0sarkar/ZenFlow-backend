@@ -1,6 +1,7 @@
 import { catchAsyncError } from '../middlewares/catchAsyncError.js';
 import { oauth2Client } from '../config/oauth.js';
 import { google } from 'googleapis';
+import ErrorHandler from '../utils/errorHandler.js';
 
 const cityFormat = (value) => {
 	value = value.split(' ');
@@ -58,6 +59,10 @@ export const getWeather = catchAsyncError(async (req, res, next) => {
 	);
 	const weather = await weatherData.json();
 
+	if (weather.cod[0] === 4 || weather.cod[0] === 5) {
+		return next(new ErrorHandler(weather.message, weather.cod));
+	}
+
 	const data = {
 		icon: weather.weather[0].icon,
 		main: weather.weather[0].main,
@@ -80,7 +85,7 @@ export const getWeather = catchAsyncError(async (req, res, next) => {
 });
 
 export const getJokes = catchAsyncError(async (req, res) => {
-	const response = await fetch('https://v2.jokeapi.dev/joke/Programming?type=single');
+	const response = await fetch('https://v2.jokeapi.dev/joke/Programming,Dark?type=single');
 	const data = await response.json();
 
 	res.status(200).json({
@@ -89,7 +94,7 @@ export const getJokes = catchAsyncError(async (req, res) => {
 	});
 });
 
-export const getAllEvents = catchAsyncError(async (req, res) => {
+export const getAllEvents = catchAsyncError(async (req, res, next) => {
 	const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
 	const response = await calendar.events.list({
@@ -196,7 +201,7 @@ export const getAllEvents = catchAsyncError(async (req, res) => {
 	});
 });
 
-export const createEvent = catchAsyncError(async (req, res) => {
+export const createEvent = catchAsyncError(async (req, res, next) => {
 	const { summary, description, location, startDate, startTime, endDate, endTime, currentColorId, reccurence } =
 		req.body;
 
@@ -248,7 +253,7 @@ export const createEvent = catchAsyncError(async (req, res) => {
 	});
 });
 
-export const getAllMails = catchAsyncError(async (req, res) => {
+export const getAllMails = catchAsyncError(async (req, res, next) => {
 	const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
 	const today = new Date().toISOString().split('T')[0];
