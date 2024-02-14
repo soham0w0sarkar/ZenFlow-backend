@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { createEvent, getAllEvents, getAllMails, getJokes, getWeather } from '../controllers/widgets.js';
+import { createEvent, getAllEvents, getAllMails, getJokes, getWeather, markAsRead } from '../controllers/widgets.js';
 import { isAuthenciated } from '../utils/isAuthenciated.js';
 import setOauthCredentials from '../middlewares/setOauthCredentials.js';
 
@@ -13,5 +13,6 @@ widgetRouter
 	.get(isAuthenciated, setOauthCredentials, getAllEvents)
 	.post(isAuthenciated, setOauthCredentials, createEvent);
 widgetRouter.get('/allMails', isAuthenciated, setOauthCredentials, getAllMails);
+widgetRouter.post('/markAsRead/:id', isAuthenciated, setOauthCredentials, markAsRead);
 
 export default widgetRouter;

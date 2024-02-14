@@ -36,6 +36,7 @@ const retrieveMessages = catchAsyncError(async (gmail, messages, res) => {
 			.trim();
 
 		return {
+			id: message.id,
 			subject,
 			short: `${subject.split(' ').slice(0, 3).join(' ')} ...`,
 			senderName,
@@ -265,8 +266,6 @@ export const getAllMails = catchAsyncError(async (req, res, next) => {
 	});
 
 	if (!response.data.messages) {
-		console.log('No messages found.');
-
 		res.status(200).json({
 			success: true,
 			mails: []
@@ -277,4 +276,23 @@ export const getAllMails = catchAsyncError(async (req, res, next) => {
 	const messages = response.data.messages;
 
 	retrieveMessages(gmail, messages, res);
+});
+
+export const markAsRead = catchAsyncError(async (req, res, next) => {
+	const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+	const { id } = req.params;
+
+	await gmail.users.messages.modify({
+		userId: 'me',
+		id,
+		resource: {
+			removeLabelIds: [ 'UNREAD' ]
+		}
+	});
+
+	res.status(200).json({
+		success: true,
+		message: 'Mail marked as read'
+	});
 });
