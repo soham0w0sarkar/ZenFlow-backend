@@ -7,7 +7,7 @@ export const initializeOAuthClient = () => {
 	oauth2Client = new google.auth.OAuth2(
 		process.env.GOOGLE_CLIENT_ID,
 		process.env.GOOGLE_CLIENT_SECRET,
-		'http://localhost:9090/api/v1/auth/google/callback'
+		'https://zenflow-77lc.onrender.com/api/v1/auth/google/callback'
 	);
 };
 
