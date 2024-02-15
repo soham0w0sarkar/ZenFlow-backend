@@ -38,7 +38,7 @@ app.use(
 		cookie: {
 			maxAge: 3 * 24 * 60 * 60 * 1000,
 			secure: false,
-			sameSite: 'none'
+			sameSite: 'lax'
 		},
 		store: sessionStore
 	})
@@ -70,3 +70,4 @@ app.use('/api/v1/widgets', widgetRouter);
 app.use(errorMiddleware);
 
 export default app;
+
