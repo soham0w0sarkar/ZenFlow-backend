@@ -11,7 +11,7 @@ export const status = (req, res) => {
 };
 
 export const googleLogin = (req, res) => {
-	const url = oauth2Client.generateAuthUrl({
+	const loginUrl = oauth2Client.generateAuthUrl({
 		access_type: 'offline',
 		scope: [
 			'https://www.googleapis.com/auth/userinfo.profile',
@@ -21,7 +21,8 @@ export const googleLogin = (req, res) => {
 		],
 		include_granted_scopes: true
 	});
-	res.redirect(url);
+
+	res.status(200).json({ success: true, loginUrl });
 };
 
 export const googleCallback = async (req, res) => {
