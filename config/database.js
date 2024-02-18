@@ -5,7 +5,7 @@ export const connectDB = async () => {
 		await mongoose.connect(process.env.MONGO_URI, {
 			dbName: 'ZenFlow'
 		});
-		console.log('MongoDB connected');
+		console.log('MongoDB connected..............');
 	} catch (error) {
 		console.log(error);
 	}

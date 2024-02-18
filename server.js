@@ -11,8 +11,8 @@ cloudinary.v2.config({
 	api_secret: process.env.CLOUD_API_SECRET
 });
 
-console.log('Cloudinary connected');
+console.log('Cloudinary connected...........');
 
 app.listen(process.env.PORT, () => {
-	console.log(`Server running on: http://localhost:${process.env.PORT}`);
+	console.log(`Server running.................`);
 });
