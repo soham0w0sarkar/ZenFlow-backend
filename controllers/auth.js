@@ -2,6 +2,8 @@ import { oauth2Client } from '../config/oauth.js';
 import { google } from 'googleapis';
 import User from '../models/user.js';
 import { sessionStore } from '../app.js';
+import { catchAsyncError } from '../middlewares/catchAsyncError.js';
+import ErrorHandler from '../utils/errorHandler.js';
 
 export const status = (req, res) => {
 	res.status(200).json({
@@ -22,7 +24,7 @@ export const googleLogin = (req, res) => {
 		include_granted_scopes: true
 	});
 
-	res.status(200).json({ success: true, loginUrl });
+	return res.redirect(loginUrl);
 };
 
 export const googleCallback = async (req, res) => {
@@ -44,9 +46,13 @@ export const googleCallback = async (req, res) => {
 		user.access_token = tokens.access_token;
 		await user.save();
 
-		req.session.user = user;
-		req.session.access_token_expiration = new Date().getTime() + 3000000;
-		req.session.save();
+		
+
+		res.status(200).json({
+			success: true,
+			user: user.id,
+			message: 'User logged in successfully'
+		});
 
 		return res.redirect(process.env.FRONTEND_URI);
 	}
@@ -58,12 +64,33 @@ export const googleCallback = async (req, res) => {
 		refresh_token: tokens.refresh_token
 	});
 
+	res.status(200).json({
+		success: true,
+		user: user.id,
+		message: 'User logged in successfully'
+	});
+
+	return res.redirect(process.env.FRONTEND_URI);
+};
+
+export const setCredentials = catchAsyncError(async (req, res, next) => {
+	const userId = req.params.id;
+
+	const user = await User.findById(userId);
+
+	if (!user) {
+		return next(new ErrorHandler('User not found', 404));
+	}
+
 	req.session.user = user;
 	req.session.access_token_expiration = new Date().getTime() + 3000000;
 	req.session.save();
 
-	res.redirect(process.env.FRONTEND_URI);
-};
+	res.status(200).json({
+		success: true,
+		message: 'Credentials set successfully'
+	});
+});
 
 export const logout = (req, res) => {
 	const sessionId = req.session.id;
