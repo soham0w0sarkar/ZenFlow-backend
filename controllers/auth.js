@@ -52,9 +52,7 @@ export const googleCallback = async (req, res) => {
 
 		const ciphertext = CryptoJS.AES.encrypt(user.id, process.env.SESSION_SECRET).toString();
 
-		console.log(ciphertext);
-
-		return res.redirect(process.env.FRONTEND_URI + '?user=' + ciphertext);
+		return res.redirect(process.env.FRONTEND_URI + '/' + encodeURIComponent(ciphertext));
 	}
 
 	user = await User.create({
@@ -66,18 +64,13 @@ export const googleCallback = async (req, res) => {
 
 	const ciphertext = CryptoJS.AES.encrypt(user.id, process.env.SESSION_SECRET).toString();
 
-	console.log(ciphertext);
-
-	return res.redirect(process.env.FRONTEND_URI + '?user=' + ciphertext);
+	return res.redirect(process.env.FRONTEND_URI + '/' + encodeURIComponent(ciphertext));
 };
 
 export const setCredentials = catchAsyncError(async (req, res, next) => {
-	let {userId} = req.body;
-
+	let { userId } = req.params;
+	userId = decodeURIComponent(userId);
 	userId = CryptoJS.AES.decrypt(userId, process.env.SESSION_SECRET).toString(CryptoJS.enc.Utf8);
-
-	console.log(userId);
-
 
 	const user = await User.findById(userId);
 
@@ -89,7 +82,10 @@ export const setCredentials = catchAsyncError(async (req, res, next) => {
 	req.session.access_token_expiration = new Date().getTime() + 3000000;
 	req.session.save();
 
-	return res.redirect(process.env.FRONTEND_URI);
+	return res.status(200).json({
+		success: true,
+		message: 'Credentials set successfully'
+	});
 });
 
 export const logout = (req, res) => {

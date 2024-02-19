@@ -6,7 +6,7 @@ const authRouter = express.Router();
 
 authRouter.get('/googleLogin', googleLogin);
 authRouter.get('/google/callback', googleCallback);
-authRouter.post('/setCredentials', setCredentials);
+authRouter.get('/setCredentials/:userId', setCredentials);
 authRouter.get('/status', isAuthenciated, status);
 authRouter.get('/logout', logout);
 
