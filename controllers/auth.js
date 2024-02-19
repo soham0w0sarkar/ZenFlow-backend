@@ -54,7 +54,7 @@ export const googleCallback = async (req, res) => {
 
 		console.log(ciphertext);
 
-		return res.redirect(process.env.FRONTEND_URI + '?user=' + ciphertext);
+		return res.redirect('/' + '?user=' + ciphertext);
 	}
 
 	user = await User.create({
@@ -68,7 +68,7 @@ export const googleCallback = async (req, res) => {
 
 	console.log(ciphertext);
 
-	return res.redirect(process.env.FRONTEND_URI + '?user=' + ciphertext);
+	return res.redirect('/' + '?user=' + ciphertext);
 };
 
 export const setCredentials = catchAsyncError(async (req, res, next) => {
