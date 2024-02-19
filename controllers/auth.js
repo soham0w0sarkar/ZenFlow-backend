@@ -72,12 +72,12 @@ export const googleCallback = async (req, res) => {
 };
 
 export const setCredentials = catchAsyncError(async (req, res, next) => {
-	let userId = req.params.id;
+	let {userId} = req.body;
 
 	userId = CryptoJS.AES.decrypt(userId, process.env.SESSION_SECRET).toString(CryptoJS.enc.Utf8);
 
 	console.log(userId);
-	
+
 
 	const user = await User.findById(userId);
 
