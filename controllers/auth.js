@@ -24,7 +24,7 @@ export const googleLogin = (req, res) => {
 		include_granted_scopes: true
 	});
 
-	return res.redirect(loginUrl);
+	res.redirect(loginUrl);
 };
 
 export const googleCallback = async (req, res) => {
