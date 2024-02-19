@@ -1,9 +1,10 @@
+import User from '../models/user.js';
+import ErrorHandler from '../utils/errorHandler.js';
+import CryptoJS from 'crypto-js';
 import { oauth2Client } from '../config/oauth.js';
 import { google } from 'googleapis';
-import User from '../models/user.js';
 import { sessionStore } from '../app.js';
 import { catchAsyncError } from '../middlewares/catchAsyncError.js';
-import ErrorHandler from '../utils/errorHandler.js';
 
 export const status = (req, res) => {
 	res.status(200).json({
@@ -24,7 +25,10 @@ export const googleLogin = (req, res) => {
 		include_granted_scopes: true
 	});
 
-	res.redirect(loginUrl);
+	return res.status(200).json({
+		success: true,
+		loginUrl
+	});
 };
 
 export const googleCallback = async (req, res) => {
@@ -46,15 +50,11 @@ export const googleCallback = async (req, res) => {
 		user.access_token = tokens.access_token;
 		await user.save();
 
-		
+		const ciphertext = CryptoJS.AES.encrypt(user.id, process.env.SESSION_SECRET).toString();
 
-		res.status(200).json({
-			success: true,
-			user: user.id,
-			message: 'User logged in successfully'
-		});
+		console.log(ciphertext);
 
-		return res.redirect(process.env.FRONTEND_URI);
+		return res.redirect(process.env.FRONTEND_URI + '?user=' + ciphertext);
 	}
 
 	user = await User.create({
@@ -64,17 +64,19 @@ export const googleCallback = async (req, res) => {
 		refresh_token: tokens.refresh_token
 	});
 
-	res.status(200).json({
-		success: true,
-		user: user.id,
-		message: 'User logged in successfully'
-	});
+	const ciphertext = CryptoJS.AES.encrypt(user.id, process.env.SESSION_SECRET).toString();
 
-	return res.redirect(process.env.FRONTEND_URI);
+	console.log(ciphertext);
+
+	return res.redirect(process.env.FRONTEND_URI + '?user=' + ciphertext);
 };
 
 export const setCredentials = catchAsyncError(async (req, res, next) => {
-	const userId = req.params.id;
+	let userId = req.params.id;
+
+	userId = CryptoJS.AES.decrypt(userId, process.env.SESSION_SECRET).toString(CryptoJS.enc.Utf8);
+
+	console.log(userId);
 
 	const user = await User.findById(userId);
 
