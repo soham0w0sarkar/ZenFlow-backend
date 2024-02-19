@@ -77,6 +77,7 @@ export const setCredentials = catchAsyncError(async (req, res, next) => {
 	userId = CryptoJS.AES.decrypt(userId, process.env.SESSION_SECRET).toString(CryptoJS.enc.Utf8);
 
 	console.log(userId);
+	
 
 	const user = await User.findById(userId);
 
@@ -88,10 +89,7 @@ export const setCredentials = catchAsyncError(async (req, res, next) => {
 	req.session.access_token_expiration = new Date().getTime() + 3000000;
 	req.session.save();
 
-	res.status(200).json({
-		success: true,
-		message: 'Credentials set successfully'
-	});
+	return res.redirect(process.env.FRONTEND_URI);
 });
 
 export const logout = (req, res) => {
