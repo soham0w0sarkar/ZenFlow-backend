@@ -6,7 +6,8 @@
 	"type": "module",
 	"scripts": {
 		"start": "nodemon server.js",
-		"format": "prettier --write ."
+		"format": "prettier --write .",
+		"push": "npm run format && git push -u origin main"
 	},
 	"author": "",
 	"license": "ISC",
