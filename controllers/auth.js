@@ -13,7 +13,7 @@ export const status = (req, res) => {
 	});
 };
 
-export const googleLogin = (req, res) => {
+export const googleLogin = (req, res, next) => {
 	const loginUrl = oauth2Client.generateAuthUrl({
 		access_type: 'offline',
 		scope: [
@@ -31,77 +31,93 @@ export const googleLogin = (req, res) => {
 	});
 };
 
-export const googleCallback = async (req, res) => {
-	const { code } = req.query;
-	const { tokens } = await oauth2Client.getToken(code);
+export const googleCallback = async (req, res, next) => {
+    try {
+        const { code } = req.query;
+        const { tokens } = await oauth2Client.getToken(code);
 
-	oauth2Client.setCredentials(tokens);
+        if (!tokens) {
+            return next(new ErrorHandler('Unable to get tokens', 400));
+        }
 
-	const oauth2 = google.oauth2({
-		auth: oauth2Client,
-		version: 'v2'
-	});
+        oauth2Client.setCredentials(tokens);
 
-	const { data } = await oauth2.userinfo.get();
+        const oauth2 = google.oauth2({
+            auth: oauth2Client,
+            version: 'v2'
+        });
 
-	let user = await User.findOne({ email: data.email });
+        const { data } = await oauth2.userinfo.get();
 
-	if (user) {
-		user.access_token = tokens.access_token;
-		await user.save();
+        if (!data) {
+            return next(new ErrorHandler('Unable to get user info', 400));
+        }
 
-		const ciphertext = CryptoJS.AES.encrypt(user.id, process.env.SESSION_SECRET).toString();
+        let user = await User.findOne({ email: data.email });
 
-		return res.redirect(process.env.FRONTEND_URI + '/' + encodeURIComponent(ciphertext));
-	}
+        if (user) {
+            user.access_token = tokens.access_token;
+            await user.save();
 
-	user = await User.create({
-		name: data.name,
-		email: data.email,
-		access_token: tokens.access_token,
-		refresh_token: tokens.refresh_token
-	});
+            const ciphertext = CryptoJS.AES.encrypt(user.id, process.env.SESSION_SECRET).toString();
 
-	const ciphertext = CryptoJS.AES.encrypt(user.id, process.env.SESSION_SECRET).toString();
+            return res.redirect(process.env.FRONTEND_URI + '/' + encodeURIComponent(ciphertext));
+        }
 
-	return res.redirect(process.env.FRONTEND_URI + '/' + encodeURIComponent(ciphertext));
+        user = await User.create({
+            name: data.name,
+            email: data.email,
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token
+        });
+
+        const ciphertext = CryptoJS.AES.encrypt(user.id, process.env.SESSION_SECRET).toString();
+
+        return res.redirect(process.env.FRONTEND_URI + '/' + encodeURIComponent(ciphertext));
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
 };
 
 export const setCredentials = catchAsyncError(async (req, res, next) => {
-	let { userId } = req.params;
-	userId = decodeURIComponent(userId);
-	userId = CryptoJS.AES.decrypt(userId, process.env.SESSION_SECRET).toString(CryptoJS.enc.Utf8);
+    try {
+        let { userId } = req.params;
+        userId = decodeURIComponent(userId);
+        userId = CryptoJS.AES.decrypt(userId, process.env.SESSION_SECRET).toString(CryptoJS.enc.Utf8);
 
-	const user = await User.findById(userId);
+        const user = await User.findById(userId);
 
-	if (!user) {
-		return next(new ErrorHandler('User not found', 404));
-	}
+        if (!user) {
+            return next(new ErrorHandler('User not found', 404));
+        }
 
-	req.session.user = user;
-	req.session.access_token_expiration = new Date().getTime() + 3000000;
-	req.session.save();
+        req.session.user = user;
+        req.session.access_token_expiration = new Date().getTime() + 3000000;
+        req.session.save();
 
-	return res.status(200).json({
-		success: true,
-		message: 'Credentials set successfully'
-	});
+        return res.status(200).json({
+            success: true,
+            message: 'Credentials set successfully'
+        });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
 });
 
-export const logout = (req, res) => {
-	const sessionId = req.session.id;
-	req.session.destroy((err) => {
-		if (err) {
-			return res.status(500).json({ message: 'Could not log out, please try again.' });
-		} else {
-			sessionStore.destroy(sessionId, (err) => {
-				if (err) {
-					return res.status(500).json({ message: 'Could not delete session from database.' });
-				} else {
-					res.clearCookie('connect.sid');
-					return res.status(200).json({ success: true, message: 'Logged out successfully.' });
-				}
-			});
-		}
-	});
+export const logout = (req, res, next) => {
+    const sessionId = req.session.id;
+    req.session.destroy((err) => {
+        if (err) {
+            return next(new ErrorHandler('Could not log out, please try again.', 500));
+        } else {
+            sessionStore.destroy(sessionId, (err) => {
+                if (err) {
+                    return next(new ErrorHandler('Could not delete session from database.', 500));
+                } else {
+                    res.clearCookie('connect.sid');
+                    return res.status(200).json({ success: true, message: 'Logged out successfully.' });
+                }
+            });
+        }
+    });
 };

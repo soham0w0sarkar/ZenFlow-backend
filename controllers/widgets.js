@@ -58,6 +58,11 @@ export const getWeather = catchAsyncError(async (req, res, next) => {
 	const weatherData = await fetch(
 		`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${process.env.WEATHER_API_KEY}`
 	);
+
+	if (!weatherData.ok) {
+		next(new ErrorHandler(`Error fetching weather) data`, 500));
+	}
+
 	const weather = await weatherData.json();
 
 	if (weather.cod[0] === 4 || weather.cod[0] === 5) {
@@ -89,6 +94,10 @@ export const getJokes = catchAsyncError(async (req, res) => {
 	const response = await fetch('https://v2.jokeapi.dev/joke/Programming?blacklistFlags=nsfw');
 	const data = await response.json();
 
+	if (data.error) {
+		next(new ErrorHandler(data.error, 500));
+	}
+
 	res.status(200).json({
 		success: true,
 		joke: data.joke
@@ -105,6 +114,10 @@ export const getAllEvents = catchAsyncError(async (req, res, next) => {
 		singleEvents: true,
 		orderBy: 'startTime'
 	});
+
+	if (response.status !== 200) {
+		next(new ErrorHandler('Error fetching events)', response.status));
+	}
 
 	if (!response.data.items) {
 		res.status(200).json({
@@ -206,7 +219,9 @@ export const createEvent = catchAsyncError(async (req, res, next) => {
 	const { summary, description, location, startDate, startTime, endDate, endTime, currentColorId, reccurence } =
 		req.body;
 
-	console.log(reccurence);
+	if (!summary || !startDate || !endDate || !currentColorId || !reccurence || !description) {
+		next(new ErrorHandler('Please fill all) fields', 400));
+	}
 
 	const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
