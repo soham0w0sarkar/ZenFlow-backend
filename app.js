@@ -70,4 +70,3 @@ app.use('/api/v1/widgets', widgetRouter);
 app.use(errorMiddleware);
 
 export default app;
-
