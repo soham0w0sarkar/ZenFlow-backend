@@ -94,10 +94,6 @@ export const getJokes = catchAsyncError(async (req, res) => {
 	const response = await fetch('https://v2.jokeapi.dev/joke/Programming?blacklistFlags=nsfw');
 	const data = await response.json();
 
-	if (data.error) {
-		next(new ErrorHandler(data.error, 500));
-	}
-
 	res.status(200).json({
 		success: true,
 		joke: data.joke
