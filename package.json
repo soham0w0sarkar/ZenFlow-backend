@@ -7,7 +7,7 @@
 	"scripts": {
 		"start": "nodemon server.js",
 		"format": "prettier --write .",
-		"push": "npm run format && git push -u origin main"
+		"push": "npm run format && git add . && git commit -m 'formatting' && git push -u origin main"
 	},
 	"author": "",
 	"license": "ISC",
