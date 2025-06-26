@@ -14,6 +14,8 @@ export const status = (req, res) => {
 };
 
 export const googleLogin = (req, res, next) => {
+	const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
 	const loginUrl = oauth2Client.generateAuthUrl({
 		access_type: 'offline',
 		scope: [
@@ -22,7 +24,8 @@ export const googleLogin = (req, res, next) => {
 			'https://www.googleapis.com/auth/calendar',
 			'https://www.googleapis.com/auth/gmail.modify'
 		],
-		include_granted_scopes: true
+		include_granted_scopes: true,
+		state: state
 	});
 
 	return res.status(200).json({
@@ -57,52 +60,41 @@ export const googleCallback = async (req, res, next) => {
 
 		if (user) {
 			user.access_token = tokens.access_token;
+			if (tokens.refresh_token) {
+				user.refresh_token = tokens.refresh_token;
+			}
 			await user.save();
-
-			const ciphertext = CryptoJS.AES.encrypt(user.id, process.env.SESSION_SECRET).toString();
-
-			return res.redirect(process.env.FRONTEND_URI + '/' + encodeURIComponent(ciphertext));
+		} else {
+			user = await User.create({
+				name: data.name,
+				email: data.email,
+				access_token: tokens.access_token,
+				refresh_token: tokens.refresh_token
+			});
 		}
 
-		user = await User.create({
-			name: data.name,
-			email: data.email,
-			access_token: tokens.access_token,
-			refresh_token: tokens.refresh_token
+		req.session.user = {
+			_id: user._id,
+			name: user.name,
+			email: user.email,
+			access_token: user.access_token,
+			refresh_token: user.refresh_token
+		};
+
+		req.session.access_token_expiration = new Date().getTime() + 3000000;
+		req.session.isAuthenticated = true;
+
+		req.session.save((err) => {
+			if (err) {
+				return next(new ErrorHandler('Could not save session, please try again.', 500));
+			}
+
+			return res.redirect(`${process.env.FRONTEND_URI}`);
 		});
-
-		const ciphertext = CryptoJS.AES.encrypt(user.id, process.env.SESSION_SECRET).toString();
-
-		return res.redirect(process.env.FRONTEND_URI + '/' + encodeURIComponent(ciphertext));
 	} catch (error) {
 		return next(new ErrorHandler(error.message, 500));
 	}
 };
-
-export const setCredentials = catchAsyncError(async (req, res, next) => {
-	try {
-		let { userId } = req.params;
-		userId = decodeURIComponent(userId);
-		userId = CryptoJS.AES.decrypt(userId, process.env.SESSION_SECRET).toString(CryptoJS.enc.Utf8);
-
-		const user = await User.findById(userId);
-
-		if (!user) {
-			return next(new ErrorHandler('User not found', 404));
-		}
-
-		req.session.user = user;
-		req.session.access_token_expiration = new Date().getTime() + 3000000;
-		req.session.save();
-
-		return res.status(200).json({
-			success: true,
-			message: 'Credentials set successfully'
-		});
-	} catch (error) {
-		return next(new ErrorHandler(error.message, 500));
-	}
-});
 
 export const logout = (req, res, next) => {
 	const sessionId = req.session.id;
