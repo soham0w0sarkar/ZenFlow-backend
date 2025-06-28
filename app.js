@@ -14,7 +14,7 @@ const app = express();
 
 app.use(
 	cors({
-		origin: process.env.FRONTEND_URI,
+		origin: "*",
 		credentials: true,
 		optionsSuccessStatus: 200,
 		exposedHeaders: ['Set-Cookie'],
@@ -50,6 +50,7 @@ app.use((req, res, next) => {
 	console.log('sessionId : ', req.sessionID);
 	console.log('method : ', req.method);
 	console.log('url : ', req.url);
+	console.log('origin : ', req.headers);
 	console.log('/*************/');
 	console.log('\n');
 	next();
